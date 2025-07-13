@@ -5,6 +5,7 @@ export default class Gameboard {
     this.shipsNumber = undefined;
     this.shipsPosition = [];
     this.grid = [];
+    this.key = ([x, y]) => `${x},${y}`;
   }
 
   createGrid() {
@@ -18,15 +19,78 @@ export default class Gameboard {
     return this.grid;
   }
 
-  shipDeployment(x, y) {}
+  shipDeployment(start, end) {
+    const shipKeys = [];
+    const visitedKeys = new Set();
+    const parentKeys = new Map();
+
+    this.validateShipPosition(start, end);
+
+    const keysForShip = [
+      [0, 1],
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, 1],
+      [1, 1],
+      [1, 0],
+      [1, -1],
+    ];
+
+    shipKeys.push(start);
+    visitedKeys.add(this.key(start));
+    parentKeys.set(this.key(start), null);
+
+    while (shipKeys.length > 0) {
+      let currentStep = shipKeys.shift();
+      let [x, y] = currentStep;
+
+      if (x === end[0] && y === end[1]) {
+        // Reconstruct pathKeys
+        let pathKeys = [];
+        let curr = this.key(end);
+        while (curr) {
+          const [cx, cy] = curr.split(",").map(Number);
+          pathKeys.unshift([cx, cy]);
+          curr = parentKeys.get(curr);
+        }
+        return this.shipsPosition.push(pathKeys);
+      }
+      for (let [k, j] of keysForShip) {
+        const newX = x + k;
+        const newY = y + j;
+        const step = [newX, newY];
+        const stepKey = this.key(step);
+        if (
+          newX >= 0 &&
+          newX <= 9 &&
+          newY >= 0 &&
+          newY <= 9 &&
+          !visitedKeys.has(stepKey)
+        ) {
+          shipKeys.push(step);
+          visitedKeys.add(stepKey);
+          parentKeys.set(stepKey, this.key(currentStep));
+        }
+      }
+    }
+  }
 
   validateShipPosition(start, end) {
     function isKeyInGrid(grid, key) {
       return grid.some((row) => row.some((cell) => cell.key === key));
     }
-    const startKey = `${start[0]},${start[1]}`;
-    const endKey = `${end[0]},${end[1]}`;
-    if (!isKeyInGrid(this.grid, startKey) || !isKeyInGrid(this.grid, endKey)) {
+    function isKeyInShips(ships, key) {
+      return ships.some((path) => path.some(([x, y]) => `${x},${y}` === key));
+    }
+    const startKey = this.key(start);
+    const endKey = this.key(end);
+    if (
+      !isKeyInGrid(this.grid, startKey) ||
+      !isKeyInGrid(this.grid, endKey) ||
+      isKeyInShips(this.shipsPosition, startKey) ||
+      isKeyInShips(this.shipsPosition, endKey)
+    ) {
       throw new Error("Invalid position");
     }
   }
