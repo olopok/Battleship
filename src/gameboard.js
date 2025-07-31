@@ -2,7 +2,7 @@ export default class Gameboard {
   constructor() {
     this.missedShots = [];
     this.hittedShots = [];
-    this.shipsNumber = undefined;
+    this.shipsNumber = 0;
     this.shipsPosition = [];
     this.grid = [];
     this.key = ([x, y]) => `${x},${y}`;
@@ -54,6 +54,8 @@ export default class Gameboard {
           pathKeys.unshift([cx, cy]);
           curr = parentKeys.get(curr);
         }
+        this.shipsNumber++;
+
         return this.shipsPosition.push(pathKeys);
       }
       for (let [k, j] of keysForShip) {
@@ -95,5 +97,29 @@ export default class Gameboard {
     }
   }
 
-  receiveAttack() {}
+  receiveAttack(coords) {
+    function isKeyInShips(ships, key) {
+      return ships.some((path) => path.some(([x, y]) => `${x},${y}` === key));
+    }
+    const attackKey = `${coords[0]},${coords[1]}`;
+    if (isKeyInShips(this.shipsPosition, attackKey)) {
+      // Mark grid as hit
+      this.grid[coords[0]][coords[1]] = { value: 1 };
+      // Optionally: call ship.hit() if you have ship objects
+      this.hittedShots.push(coords);
+      return true;
+    } else {
+      this.missedShots.push(coords);
+      return false;
+    }
+  }
+
+  allShipsSunk() {
+    // Flatten all ship positions into a single array of keys
+    const allShipKeys = this.shipsPosition.flat().map(([x, y]) => `${x},${y}`);
+    // Convert hittedShots to keys
+    const hitKeys = this.hittedShots.map(([x, y]) => `${x},${y}`);
+    // Every ship cell must be in hitKeys
+    return allShipKeys.every((key) => hitKeys.includes(key));
+  }
 }

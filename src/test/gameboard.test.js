@@ -112,3 +112,58 @@ describe("Gameboard shipDeployment", () => {
     );
   });
 });
+
+describe("Gameboard receiveAttack", () => {
+  let board;
+  beforeEach(() => {
+    board = new Gameboard();
+    board.createGrid();
+    board.shipDeployment([0, 0], [0, 2]); // Places ship at [0,0], [0,1], [0,2]
+  });
+
+  // test("should mark grid and return object if attack hits a ship", () => {
+  //   const result = board.receiveAttack([0, 0]);
+  //   expect(result).toEqual({ "value": 1 });
+  //   expect(board.grid[0][0]).toHaveProperty("key", "0,0");
+  // });
+
+  test("should return false if attack misses", () => {
+    expect(board.receiveAttack([1, 1])).toBe(false);
+    expect(board.receiveAttack([9, 9])).toBe(false);
+  });
+
+  test("should record missed shots", () => {
+    board.receiveAttack([5, 5]);
+    expect(board.missedShots).toContainEqual([5, 5]);
+  });
+  test("should record hitted shots", () => {
+    board.receiveAttack([0, 0]);
+    expect(board.hittedShots).toContainEqual([0, 0]);
+  });
+});
+
+describe("Gameboard allShipsSunk", () => {
+  let board;
+  beforeEach(() => {
+    board = new Gameboard();
+    board.createGrid();
+    board.shipDeployment([0, 0], [0, 2]); // Ship at [0,0],[0,1],[0,2]
+    board.shipDeployment([1, 0], [1, 1]); // Ship at [1,0],[1,1]
+  });
+
+  test("should return false if not all ships are sunk", () => {
+    board.receiveAttack([0, 0]);
+    board.receiveAttack([0, 1]);
+    // [0,2] and [1,0],[1,1] not hit yet
+    expect(board.allShipsSunk()).toBe(false);
+  });
+
+  test("should return true if all ships are sunk", () => {
+    board.receiveAttack([0, 0]);
+    board.receiveAttack([0, 1]);
+    board.receiveAttack([0, 2]);
+    board.receiveAttack([1, 0]);
+    board.receiveAttack([1, 1]);
+    expect(board.allShipsSunk()).toBe(true);
+  });
+});
