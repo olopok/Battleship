@@ -121,12 +121,6 @@ describe("Gameboard receiveAttack", () => {
     board.shipDeployment([0, 0], [0, 2]); // Places ship at [0,0], [0,1], [0,2]
   });
 
-  // test("should mark grid and return object if attack hits a ship", () => {
-  //   const result = board.receiveAttack([0, 0]);
-  //   expect(result).toEqual({ "value": 1 });
-  //   expect(board.grid[0][0]).toHaveProperty("key", "0,0");
-  // });
-
   test("should return false if attack misses", () => {
     expect(board.receiveAttack([1, 1])).toBe(false);
     expect(board.receiveAttack([9, 9])).toBe(false);

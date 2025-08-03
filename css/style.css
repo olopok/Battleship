@@ -1,3 +1,21 @@
 * {
   box-sizing: border-box;
 }
+
+.main_container {
+  display: flex;
+  justify-content: space-between;
+  margin: 40px;
+}
+
+.gameboard-grid {
+  border-collapse: collapse;
+}
+
+.gameboard-grid td.cell {
+  border: 1px solid black;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  vertical-align: middle;
+}
