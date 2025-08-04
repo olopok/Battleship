@@ -61,5 +61,5 @@ export function displayPlayersInfo(containerId) {
       <div>Player 2: Computer</div>
     </div>
   `;
-  document.getElementById('deploy-ship').classList.remove('hidden')
+  document.getElementById("deploy-ship").classList.remove("hidden");
 }

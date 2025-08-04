@@ -20,62 +20,49 @@ export default class Gameboard {
   }
 
   shipDeployment(start, end) {
-    const shipKeys = [];
-    const visitedKeys = new Set();
-    const parentKeys = new Map();
+    // Only allow straight lines
+    const [x1, y1] = start;
+    const [x2, y2] = end;
+    if (x1 !== x2 && y1 !== y2) {
+      throw new Error("Ships must be placed in a straight line");
+    }
 
-    this.validateShipPosition(start, end);
-
-    const keysForShip = [
-      [0, 1],
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, 1],
-      [1, 1],
-      [1, 0],
-      [1, -1],
-    ];
-
-    shipKeys.push(start);
-    visitedKeys.add(this.key(start));
-    parentKeys.set(this.key(start), null);
-
-    while (shipKeys.length > 0) {
-      let currentStep = shipKeys.shift();
-      let [x, y] = currentStep;
-
-      if (x === end[0] && y === end[1]) {
-        // Reconstruct pathKeys
-        let pathKeys = [];
-        let curr = this.key(end);
-        while (curr) {
-          const [cx, cy] = curr.split(",").map(Number);
-          pathKeys.unshift([cx, cy]);
-          curr = parentKeys.get(curr);
-        }
-        this.shipsNumber++;
-
-        return this.shipsPosition.push(pathKeys);
+    // Collect all coordinates for the ship
+    const pathKeys = [];
+    if (x1 === x2) {
+      // Horizontal
+      const minY = Math.min(y1, y2);
+      const maxY = Math.max(y1, y2);
+      for (let y = minY; y <= maxY; y++) {
+        pathKeys.push([x1, y]);
       }
-      for (let [k, j] of keysForShip) {
-        const newX = x + k;
-        const newY = y + j;
-        const step = [newX, newY];
-        const stepKey = this.key(step);
-        if (
-          newX >= 0 &&
-          newX <= 9 &&
-          newY >= 0 &&
-          newY <= 9 &&
-          !visitedKeys.has(stepKey)
-        ) {
-          shipKeys.push(step);
-          visitedKeys.add(stepKey);
-          parentKeys.set(stepKey, this.key(currentStep));
-        }
+    } else {
+      // Vertical
+      const minX = Math.min(x1, x2);
+      const maxX = Math.max(x1, x2);
+      for (let x = minX; x <= maxX; x++) {
+        pathKeys.push([x, y1]);
       }
     }
+
+    // Check if any cell is already occupied or out of bounds
+    for (const [x, y] of pathKeys) {
+      const key = this.key([x, y]);
+      if (
+        x < 0 ||
+        x > 9 ||
+        y < 0 ||
+        y > 9 ||
+        this.shipsPosition.some((path) =>
+          path.some(([px, py]) => px === x && py === y),
+        )
+      ) {
+        throw new Error("Invalid position");
+      }
+    }
+
+    this.shipsNumber++;
+    this.shipsPosition.push(pathKeys);
   }
 
   validateShipPosition(start, end) {

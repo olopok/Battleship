@@ -23,3 +23,7 @@
 .hidden {
   display: none;
 }
+
+.ship-cell {
+  background: #4caf50;
+}
