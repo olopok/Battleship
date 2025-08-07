@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hide the deploy-ship button
       const deployBtn = document.getElementById("deploy-ship");
       if (deployBtn) deployBtn.classList.add("hidden");
-            computerTargets = [];
+      computerTargets = [];
     });
   }
 
@@ -76,7 +76,7 @@ function enablePlayerAttacks(enemyBoardId) {
     if (alreadyAttacked) return;
 
     // Player attacks
-    players.computer.gameboard.receiveAttack([row, col]);
+    const hit = players.computer.gameboard.receiveAttack([row, col]);
     renderBoards();
 
     // Check for win
@@ -85,7 +85,16 @@ function enablePlayerAttacks(enemyBoardId) {
       return;
     }
 
-    // Switch to computer turn
+    if (hit) {
+      // Player gets another turn after a hit (do not switch turn)
+
+      // return;
+            // Always switch to computer turn, even after a hit
+      currentPlayer = "computer";
+      setTimeout(computerMove, 700);
+    }
+
+    // Miss: switch to computer turn
     currentPlayer = "computer";
     setTimeout(computerMove, 700); // Delay for realism
   });
