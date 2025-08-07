@@ -8,7 +8,7 @@ import { renderGrid, createPlayers, displayPlayersInfo } from "./DOMrender.js";
 let players;
 let currentPlayer = "human"; // Track whose turn it is
 let computerTargets = []; // Stack of coordinates to try after a hit
-let lastComputerHit = null; // Last hit coordinate
+// let lastComputerHit = null; // Last hit coordinate
 
 document.addEventListener("DOMContentLoaded", () => {
   renderGrid("player1");
@@ -76,7 +76,7 @@ function enablePlayerAttacks(enemyBoardId) {
     if (alreadyAttacked) return;
 
     // Player attacks
-    const hit = players.computer.gameboard.receiveAttack([row, col]);
+    players.computer.gameboard.receiveAttack([row, col]);
     renderBoards();
 
     // Check for win
@@ -85,18 +85,9 @@ function enablePlayerAttacks(enemyBoardId) {
       return;
     }
 
-    if (hit) {
-      // Player gets another turn after a hit (do not switch turn)
-
-      // return;
-            // Always switch to computer turn, even after a hit
-      currentPlayer = "computer";
-      setTimeout(computerMove, 700);
-    }
-
-    // Miss: switch to computer turn
+    // Always switch to computer turn after player's shot
     currentPlayer = "computer";
-    setTimeout(computerMove, 700); // Delay for realism
+    setTimeout(computerMove, 700);
   });
 }
 
@@ -110,18 +101,12 @@ function computerMove() {
     }
     const hit = players.human.gameboard.receiveAttack([row, col]);
     renderBoards();
-    if (hit) {
-      // Add adjacent cells to targets stack
-      addAdjacentTargets(row, col);
-      if (players.human.gameboard.allShipsSunk()) {
-        alert("Computer wins!");
-        return;
-      }
-      // Computer gets another turn after a hit
-      setTimeout(computerMove, 700);
+    if (players.human.gameboard.allShipsSunk()) {
+      alert("Computer wins!");
       return;
     }
-    // Miss: switch back to human
+    // If hit, add adjacent targets (but still switch turn)
+    if (hit) addAdjacentTargets(row, col);
     currentPlayer = "human";
     return;
   }
@@ -139,17 +124,12 @@ function computerMove() {
     possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
   const hit = players.human.gameboard.receiveAttack([row, col]);
   renderBoards();
-  if (hit) {
-    addAdjacentTargets(row, col);
-    if (players.human.gameboard.allShipsSunk()) {
-      alert("Computer wins!");
-      return;
-    }
-    // Computer gets another turn after a hit
-    setTimeout(computerMove, 700);
+  if (players.human.gameboard.allShipsSunk()) {
+    alert("Computer wins!");
     return;
   }
-  // Miss: switch back to human
+  // If hit, add adjacent targets (but still switch turn)
+  if (hit) addAdjacentTargets(row, col);
   currentPlayer = "human";
 }
 
