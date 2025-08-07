@@ -10,35 +10,6 @@ function randomOrientation() {
   return Math.random() < 0.5 ? "horizontal" : "vertical";
 }
 
-// Generate random valid ship position
-function getRandomShipPosition(board, length) {
-  let placed = false;
-  let start, end;
-  let attempts = 0;
-  while (!placed && attempts < 100) {
-    attempts++;
-    const orientation = randomOrientation();
-    if (orientation === "horizontal") {
-      const row = randInt(0, 9);
-      const colStart = randInt(0, 10 - length);
-      start = [row, colStart];
-      end = [row, colStart + length - 1];
-    } else {
-      const col = randInt(0, 9);
-      const rowStart = randInt(0, 10 - length);
-      start = [rowStart, col];
-      end = [rowStart + length - 1, col];
-    }
-    try {
-      board.shipDeployment(start, end);
-      placed = true;
-    } catch (e) {
-      // Try again
-    }
-  }
-  if (!placed) throw new Error("Could not place ship after 100 attempts");
-}
-
 // Deploy ships of given lengths for a player
 export function deployRandomShipsForPlayer(player) {
   // Reset the gameboard and grid before deploying

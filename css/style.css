@@ -27,3 +27,11 @@
 .ship-cell {
   background: #4caf50;
 }
+
+.hit-cell {
+  background: red !important;
+}
+
+.miss-cell {
+  background: lightblue !important;
+}
